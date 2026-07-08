@@ -207,6 +207,30 @@
       border-top: 1px solid #C4BFB2;
       flex-shrink: 0;
     }
+
+    /* ── Mobile ───────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      html, body { overflow: auto; height: auto; }
+      #spotlight-canvas { display: none; }
+      h1 { font-size: 22px; }
+      .page {
+        height: auto;
+        justify-content: flex-start;
+        padding: 0 16px 24px;
+      }
+      .content {
+        flex-direction: column;
+      }
+      .col-left {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #C4BFB2;
+        padding: 16px 0;
+      }
+      .col-right {
+        padding: 16px 0 0;
+      }
+    }
   </style>
 </head>
 <body>
