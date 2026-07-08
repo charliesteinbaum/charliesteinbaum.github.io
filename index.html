@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Charlie Steinbaum</title>
+  <meta name="description" content="Charlie Steinbaum — economist, researcher, media thinker.">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background: #F0EDE5;
+      color: #18160F;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    a            { color: #0000CC; }
+    a:visited    { color: #6B21A8; }
+    a:hover      { text-decoration: none; }
+    a:focus-visible { outline: 2px solid #CC0000; outline-offset: 2px; }
+
+    /* ── Spotlight canvas ─────────────────────────────────────────── */
+    #spotlight-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+
+    /* ── Ticker ───────────────────────────────────────────────────── */
+    .ticker {
+      position: relative;
+      z-index: 3;
+      background: #18160F;
+      color: #F0EDE5;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      overflow: hidden;
+      white-space: nowrap;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .ticker-live {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      z-index: 2;
+      background: #CC0000;
+      color: #fff;
+      font-weight: bold;
+      padding: 0 10px;
+      letter-spacing: 0.14em;
+      display: flex;
+      align-items: center;
+    }
+    .ticker-track {
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    /* ── Page shell ───────────────────────────────────────────────── */
+    .page {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 22px);
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+      justify-content: center;
+    }
+
+    /* ── Header ───────────────────────────────────────────────────── */
+    header {
+      padding: 14px 0 11px;
+      border-bottom: 2px solid #18160F;
+      flex-shrink: 0;
+    }
+    .header-row {
+      display: flex;
+      align-items: baseline;
+      gap: 13px;
+    }
+    h1 {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 28px;
+      font-weight: bold;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+    .live {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 10px;
+      font-weight: bold;
+      letter-spacing: 0.18em;
+      color: #CC0000;
+    }
+    .live-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #CC0000;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.3; transform: scale(0.65); }
+    }
+    .header-meta {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 11px;
+      color: #6A6558;
+      margin-top: 3px;
+    }
+
+    /* ── Two-column content ───────────────────────────────────────── */
+    .content {
+      display: flex;
+      overflow: hidden;
+      gap: 0;
+    }
+
+    .col-left {
+      width: 38.2%;
+      flex-shrink: 0;
+      border-right: 1px solid #C4BFB2;
+      padding: 20px 24px 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .col-right {
+      flex: 1;
+      padding: 20px 0 16px 28px;
+    }
+
+    /* ── Section headings ─────────────────────────────────────────── */
+    h2 {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 17px;
+      font-weight: bold;
+      margin-bottom: 9px;
+    }
+
+    p { margin-bottom: 8px; }
+    p:last-child { margin-bottom: 0; }
+
+    /* ── Projects ─────────────────────────────────────────────────── */
+    .projects { list-style: none; }
+    .projects li {
+      padding: 9px 0;
+      border-bottom: 1px dotted #C4BFB2;
+    }
+    .projects li:first-child { padding-top: 0; }
+    .projects li:last-child { border-bottom: none; }
+
+    .proj-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+    .proj-title a { color: #0000CC; }
+    .proj-title a:visited { color: #6B21A8; }
+    .proj-desc { font-size: 13px; color: #18160F; }
+
+    /* ── Contact ──────────────────────────────────────────────────── */
+    .reveal-wrap {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    .reveal-btn {
+      background: none;
+      border: 1px solid #C4BFB2;
+      color: #0000CC;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 11px;
+      cursor: pointer;
+      padding: 2px 10px;
+      text-decoration: underline;
+    }
+    .reveal-btn:hover { background: #C4BFB2; }
+
+    /* ── Footer ───────────────────────────────────────────────────── */
+    footer {
+      padding: 10px 0 8px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 10px;
+      color: #6A6558;
+      letter-spacing: 0.04em;
+      border-top: 1px solid #C4BFB2;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="spotlight-canvas" aria-hidden="true"></canvas>
+
+<div class="ticker" role="marquee" aria-label="Questions">
+  <span class="ticker-live" aria-hidden="true">LIVE</span>
+  <span class="ticker-track" id="ticker-track">
+    What does it mean for information to be live? &nbsp;&nbsp;///&nbsp;&nbsp;
+    Is entertainment a substitute for understanding? &nbsp;&nbsp;///&nbsp;&nbsp;
+    Who profits from uncertainty? &nbsp;&nbsp;///&nbsp;&nbsp;
+    Does speed make information more or less true? &nbsp;&nbsp;///&nbsp;&nbsp;
+    Can a platform be neutral? &nbsp;&nbsp;///&nbsp;&nbsp;
+    Is virality a proxy for truth? &nbsp;&nbsp;///&nbsp;&nbsp;
+    What is the price of being informed? &nbsp;&nbsp;///&nbsp;&nbsp;
+    Is attention a resource or a right? &nbsp;&nbsp;///&nbsp;&nbsp;
+    What do we actually want from media? &nbsp;&nbsp;///&nbsp;&nbsp;
+    Who benefits from ambiguity? &nbsp;&nbsp;///&nbsp;&nbsp;
+    What gets remembered when everything is recorded? &nbsp;&nbsp;///&nbsp;&nbsp;
+    Does more information mean better decisions? &nbsp;&nbsp;///&nbsp;&nbsp;
+    Is objectivity a business model or a principle? &nbsp;&nbsp;///&nbsp;&nbsp;
+    What separates a free press from a profitable one? &nbsp;&nbsp;///&nbsp;&nbsp;
+  </span>
+</div>
+
+<div class="page">
+
+  <header>
+    <div class="header-row">
+      <h1>Charlie Steinbaum</h1>
+      <span class="live" aria-label="Live">
+        <span class="live-dot" aria-hidden="true"></span>LIVE
+      </span>
+    </div>
+    <div class="header-meta">
+      San Francisco &nbsp;<span id="clock-sf">--:-- --</span> &nbsp;|&nbsp; New York &nbsp;<span id="clock-ny">--:-- --</span>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- Left column -->
+    <div class="col-left">
+
+      <section id="about">
+        <h2>Background</h2>
+        <p>Studied economics and government at Harvard ('24). Prod Cohort 3.0. Ex-McKinsey.</p>
+        <p>News and entertainment media fascinates me — the economics of attention, the architecture of trust, how information moves (and who shapes it).</p>
+      </section>
+
+      <section id="contact">
+        <h2>Get in Touch</h2>
+        <p>Happy to connect about media, research, and interesting problems.</p>
+        <div class="reveal-wrap">
+          <span id="email-slot">
+            <button class="reveal-btn" onclick="revealEmail()">[ show email ]</button>
+          </span>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Right column -->
+    <div class="col-right">
+
+      <section id="projects">
+        <h2>Featured Work</h2>
+        <ul class="projects">
+          <li>
+            <div class="proj-title"><a href="https://charliesteinbaum.github.io/polymarket-map-project" target="_blank" rel="noopener">Polymarket World Map</a></div>
+            <p class="proj-desc">I hate the Polymarket interaction layer, so I built a new one — a world map showing prediction markets by geography.</p>
+          </li>
+          <li>
+            <div class="proj-title"><a href="#" target="_blank" rel="noopener">Simulated Fourth Branch</a></div>
+            <p class="proj-desc">To be updated.</p>
+          </li>
+          <li>
+            <div class="proj-title">Political Satire — <a href="https://harvardindependent.com/author/charlessteinbaum/" target="_blank" rel="noopener">nom de plume</a> &amp; <a href="https://harvardindependent.com/author/chuckstone/" target="_blank" rel="noopener">nom de guerre</a></div>
+            <p class="proj-desc">Scathing critiques of those around me, published in the Harvard Independent.</p>
+          </li>
+          <li>
+            <div class="proj-title">IFX Research</div>
+            <p class="proj-desc">Created a market system and research community to align research outputs with private incentives, compensating academics for the economic value of their work. Acquired for core IP and network in late 2024.</p>
+          </li>
+          <li>
+            <div class="proj-title">US Treasury</div>
+            <p class="proj-desc">Developed and built novel tools and methodologies for tracking and monitoring American Rescue Plan (ARP) disbursements (establishing baselines for eventual DOGE work).</p>
+          </li>
+        </ul>
+      </section>
+
+    </div>
+  </div>
+
+  <footer>&copy; <span id="yr"></span> Charlie Steinbaum</footer>
+
+</div>
+
+<script>
+// ── Clock ─────────────────────────────────────────────────────────────────
+function tick() {
+  const now = new Date();
+  const sf = document.getElementById('clock-sf');
+  const ny = document.getElementById('clock-ny');
+  const fmt = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+  if (sf) sf.textContent = now.toLocaleTimeString('en-US', { ...fmt, timeZone: 'America/Los_Angeles' });
+  if (ny) ny.textContent = now.toLocaleTimeString('en-US', { ...fmt, timeZone: 'America/New_York' });
+}
+tick(); setInterval(tick, 1000);
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+// ── Email ─────────────────────────────────────────────────────────────────
+const _u = '\x63\x68\x61\x72\x6c\x69\x65\x73\x74\x65\x69\x6e\x62\x61\x75\x6d';
+const _d = '\x67\x6d\x61\x69\x6c\x2e\x63\x6f\x6d';
+function revealEmail() {
+  const addr = _u + '\x40' + _d;
+  document.getElementById('email-slot').innerHTML =
+    '<a href="\x6d\x61\x69\x6c\x74\x6f\x3a' + addr + '">' + addr + '</a>';
+}
+
+// ── Ticker (seamless JS loop) ─────────────────────────────────────────────
+(function () {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const container = document.querySelector('.ticker');
+  const track = document.getElementById('ticker-track');
+  track.innerHTML = track.innerHTML + track.innerHTML;
+  const halfW = track.scrollWidth / 2;
+  let pos = container.offsetWidth;
+  const speed = 0.9;
+  function frame() {
+    pos -= speed;
+    if (pos <= -halfW) pos += halfW;
+    track.style.transform = 'translateX(' + pos + 'px)';
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+// ── Spotlight fixtures + vector cones ────────────────────────────────────
+(function () {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const canvas = document.getElementById('spotlight-canvas');
+  const ctx = canvas.getContext('2d');
+  const HALF_ANGLE = Math.PI / 62;
+  const PX = 4;
+
+  // ── Rotating lamp head — short cylinder shape ────────────────────────
+  const LAMP = [
+    [0,1,1,1,0],
+    [1,1,1,1,1],
+    [1,1,1,1,1],
+    [1,1,1,1,1],
+    [1,1,1,1,1],
+    [0,1,1,1,0],
+  ];
+  const LC = LAMP[0].length; // 5
+  const LR = LAMP.length;    // 6
+  const LW = LC * PX;        // 20px
+
+  // ── Fixed base — fuller Hollywood stand ──────────────────────────────
+  const BASE = [
+    [0,0,0,1,0,0,0],   // pivot / yoke top
+    [0,0,0,1,0,0,0],   // column
+    [0,0,1,1,1,0,0],   // column with bracket
+    [0,0,1,1,1,0,0],   // column with bracket
+    [0,1,1,1,1,1,0],   // base plate
+    [1,1,1,1,1,1,1],   // base platform
+    [1,0,0,1,0,0,1],   // tripod feet
+  ];
+  const BC = BASE[0].length;  // 7
+  const BR = BASE.length;     // 7
+  const BW = BC * PX;         // 28px
+  const BH = BR * PX;         // 28px
+
+  let W, H;
+  let mouse = { x: -9999, y: -9999 };
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+  const PAD_X = 40, PAD_Y = 22;
+
+  function config() {
+    // Pivot = top-center of each base
+    const by = H - BH - PAD_Y;
+    const lbx = PAD_X;
+    const rbx = W - PAD_X - BW;
+    const pivotCol = Math.floor(BC / 2); // col 3 = center
+    return [
+      { bx: lbx, by, pivot: { x: lbx + pivotCol * PX + PX/2, y: by }, defaultAngle: -Math.PI * 0.45 },
+      { bx: rbx, by, pivot: { x: rbx + pivotCol * PX + PX/2, y: by }, defaultAngle: -Math.PI * 0.55 },
+    ];
+  }
+
+  // Draw fixed base at (bx, by)
+  function drawBase(bx, by) {
+    ctx.fillStyle = '#18160F';
+    for (let r = 0; r < BR; r++)
+      for (let c = 0; c < BC; c++)
+        if (BASE[r][c]) ctx.fillRect(bx + c*PX, by + r*PX, PX, PX);
+  }
+
+  // Draw rotating lamp head: pivot at (px,py), lamp extends forward at angle
+  function drawLamp(px, py, angle) {
+    ctx.save();
+    ctx.translate(px, py);
+    ctx.rotate(angle);
+    ctx.fillStyle = '#18160F';
+    const oy = -(LR / 2) * PX;
+    for (let r = 0; r < LR; r++)
+      for (let c = 0; c < LC; c++)
+        if (LAMP[r][c]) ctx.fillRect(c * PX, oy + r * PX, PX, PX);
+    ctx.restore();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const far = Math.max(W, H) * 2.5;
+    const fixtures = config();
+
+    // Compute angle + beam source for each fixture
+    const data = fixtures.map(f => {
+      const dx = mouse.x - f.pivot.x, dy = mouse.y - f.pivot.y;
+      const angle = Math.sqrt(dx*dx+dy*dy) >= 10
+        ? Math.atan2(dy, dx)
+        : f.defaultAngle;
+      const src = {
+        x: f.pivot.x + Math.cos(angle) * LW,
+        y: f.pivot.y + Math.sin(angle) * LW,
+      };
+      return { ...f, angle, src };
+    });
+
+    // ── Cone fills (screen blend — overlap naturally brighter) ──
+    ctx.globalCompositeOperation = 'screen';
+    for (const d of data) {
+      const { src, angle } = d;
+      const p1 = { x: src.x + Math.cos(angle-HALF_ANGLE)*far, y: src.y + Math.sin(angle-HALF_ANGLE)*far };
+      const p2 = { x: src.x + Math.cos(angle+HALF_ANGLE)*far, y: src.y + Math.sin(angle+HALF_ANGLE)*far };
+      const g = ctx.createRadialGradient(src.x, src.y, 0, src.x, src.y, far*0.55);
+      g.addColorStop(0,   'rgba(255,255,255,0.28)');
+      g.addColorStop(0.6, 'rgba(255,255,255,0.10)');
+      g.addColorStop(1,   'rgba(255,255,255,0)');
+      ctx.beginPath();
+      ctx.moveTo(src.x, src.y);
+      ctx.lineTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.closePath();
+      ctx.fillStyle = g;
+      ctx.fill();
+    }
+
+    // ── Edge lines + pixel art (source-over) ──
+    ctx.globalCompositeOperation = 'source-over';
+    for (const d of data) {
+      const { src, angle } = d;
+      const p1 = { x: src.x + Math.cos(angle-HALF_ANGLE)*far, y: src.y + Math.sin(angle-HALF_ANGLE)*far };
+      const p2 = { x: src.x + Math.cos(angle+HALF_ANGLE)*far, y: src.y + Math.sin(angle+HALF_ANGLE)*far };
+      ctx.strokeStyle = 'rgba(218,215,210,0.75)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(src.x, src.y); ctx.lineTo(p1.x, p1.y);
+      ctx.moveTo(src.x, src.y); ctx.lineTo(p2.x, p2.y);
+      ctx.stroke();
+      drawBase(d.bx, d.by);
+      drawLamp(d.pivot.x, d.pivot.y, d.angle);
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+})();
+</script>
+
+</body>
+</html>
