@@ -222,14 +222,15 @@
         flex-direction: column;
       }
       .col-left {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid #C4BFB2;
-        padding: 16px 0;
+        display: contents;
       }
       .col-right {
-        padding: 16px 0 0;
+        order: 2;
+        padding: 16px 0;
+        border-bottom: 1px solid #C4BFB2;
       }
+      #about   { order: 1; padding: 16px 0; }
+      #contact { order: 3; padding: 16px 0; border-top: 1px solid #C4BFB2; }
     }
   </style>
 </head>
