@@ -360,7 +360,7 @@ function revealEmail() {
   const track = document.getElementById('ticker-track');
   track.innerHTML = track.innerHTML + track.innerHTML;
   const halfW = track.scrollWidth / 2;
-  let pos = container.offsetWidth;
+  let pos = 0;
   const speed = 0.9;
   function frame() {
     pos -= speed;
