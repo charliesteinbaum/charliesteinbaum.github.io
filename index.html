@@ -266,7 +266,7 @@
       <h1>Charlie Steinbaum</h1>
     </div>
     <div class="header-meta">
-      San Francisco &nbsp;<span id="clock-sf">--:-- --</span> &nbsp;|&nbsp; New York &nbsp;<span id="clock-ny">--:-- --</span>
+      West &nbsp;<span id="clock-sf">--:-- --</span> &nbsp;|&nbsp; East &nbsp;<span id="clock-ny">--:-- --</span>
     </div>
   </header>
 
@@ -347,11 +347,18 @@ function tick() {
   const now = new Date();
   const sf = document.getElementById('clock-sf');
   const ny = document.getElementById('clock-ny');
-  const fmt = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+  const fmt = { hour: '2-digit', minute: '2-digit', hour12: true };
   if (sf) sf.textContent = now.toLocaleTimeString('en-US', { ...fmt, timeZone: 'America/Los_Angeles' });
   if (ny) ny.textContent = now.toLocaleTimeString('en-US', { ...fmt, timeZone: 'America/New_York' });
 }
-tick(); setInterval(tick, 1000);
+// Paint immediately, then again just after each minute so both zones roll together.
+function scheduleTick() {
+  tick();
+  const now = new Date();
+  const msUntilNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds() + 200;
+  setTimeout(scheduleTick, msUntilNextMinute);
+}
+scheduleTick();
 document.getElementById('yr').textContent = new Date().getFullYear();
 
 // ── Email ─────────────────────────────────────────────────────────────────
